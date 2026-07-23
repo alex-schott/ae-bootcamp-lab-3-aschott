@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  List, ListItem, ListItemText, IconButton, Checkbox, Typography, Box, CircularProgress, Paper, Chip
+  List, ListItem, ListItemText, IconButton, Checkbox, Typography, Box, CircularProgress, Paper, Chip, Radio, RadioGroup
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import EventIcon from '@mui/icons-material/Event';
 
-function TaskList({ onEdit }) {
+function TaskList({ onEdit, onPriorityChange }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +33,7 @@ function TaskList({ onEdit }) {
       const response = await fetch('/api/tasks');
       if (!response.ok) throw new Error('Failed to fetch tasks');
       const data = await response.json();
-      setTasks(data);
+      setTasks(data.map(task => ({ ...task, priority: ['P1', 'P2', 'P3'].includes(task.priority) ? task.priority : 'P3' })));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -61,6 +61,14 @@ function TaskList({ onEdit }) {
       fetchTasks();
     } catch (err) {
       setError('Failed to delete task');
+    }
+  };
+
+  const handlePriorityChange = async (task, priority) => {
+    try {
+      await onPriorityChange(task, priority);
+    } catch (err) {
+      setError('Failed to update task priority');
     }
   };
 
@@ -231,6 +239,26 @@ function TaskList({ onEdit }) {
                   }
                 }}
               >
+                <RadioGroup
+                  row
+                  aria-label={`Priority for ${task.title}`}
+                  value={task.priority || 'P3'}
+                  onChange={event => handlePriorityChange(task, event.target.value)}
+                  sx={{
+                    flexWrap: 'nowrap',
+                    '& .MuiRadio-root': { p: 0.25 }
+                  }}
+                >
+                  {['P1', 'P2', 'P3'].map(priority => (
+                    <Radio
+                      key={priority}
+                      value={priority}
+                      className="priority-radio"
+                      inputProps={{ 'aria-label': priority }}
+                      size="small"
+                    />
+                  ))}
+                </RadioGroup>
                 <IconButton 
                   aria-label="edit" 
                   onClick={() => onEdit(task)}

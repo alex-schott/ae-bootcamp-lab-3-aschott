@@ -17,8 +17,22 @@ describe('Tasks API', () => {
     expect(res.body.title).toBe('Test Task');
     expect(res.body.description).toBe('A test task');
     expect(res.body.due_date).toBe('2025-09-30');
+    expect(res.body.priority).toBe('P3');
     expect(res.body.completed).toBe(0);
     taskId = res.body.id;
+  });
+
+  it('should accept supported priorities and reject unsupported priorities', async () => {
+    const priorityTask = await request(app)
+      .post('/api/tasks')
+      .send({ title: 'High Priority Task', priority: 'P1' });
+    expect(priorityTask.status).toBe(201);
+    expect(priorityTask.body.priority).toBe('P1');
+
+    const invalidTask = await request(app)
+      .post('/api/tasks')
+      .send({ title: 'Invalid Priority Task', priority: 'P4' });
+    expect(invalidTask.status).toBe(400);
   });
 
   it('should get all tasks', async () => {

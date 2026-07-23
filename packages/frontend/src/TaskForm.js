@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Paper, Typography, Box } from '@mui/material';
+import { TextField, Button, Paper, Typography, Box, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 
@@ -7,6 +7,7 @@ function TaskForm({ onSave, initialTask }) {
   const [title, setTitle] = useState(initialTask?.title || '');
   const [description, setDescription] = useState(initialTask?.description || '');
   const [dueDate, setDueDate] = useState(initialTask?.due_date || '');
+  const [priority, setPriority] = useState(initialTask?.priority || 'P3');
   const [error, setError] = useState(null);
 
   // Helper to normalize date string to YYYY-MM-DD format
@@ -30,10 +31,12 @@ function TaskForm({ onSave, initialTask }) {
       setTitle(initialTask.title || '');
       setDescription(initialTask.description || '');
       setDueDate(normalizeDateString(initialTask.due_date));
+      setPriority(initialTask.priority || 'P3');
     } else {
       setTitle('');
       setDescription('');
       setDueDate('');
+      setPriority('P3');
     }
   }, [initialTask]);
 
@@ -44,10 +47,11 @@ function TaskForm({ onSave, initialTask }) {
       return;
     }
     setError(null);
-    await onSave({ title, description, due_date: dueDate });
+    await onSave({ title, description, due_date: dueDate, priority });
     setTitle('');
     setDescription('');
     setDueDate('');
+    setPriority('P3');
   };
 
   return (
@@ -97,6 +101,29 @@ function TaskForm({ onSave, initialTask }) {
             }
           }}
         />
+        <FormControl component="fieldset">
+          <FormLabel component="legend" sx={{ color: '#212121', fontSize: '0.875rem', fontWeight: 600 }}>
+            Priority
+          </FormLabel>
+          <RadioGroup
+            row
+            aria-label="Priority"
+            name="priority"
+            value={priority}
+            onChange={e => setPriority(e.target.value)}
+          >
+            {['P1', 'P2', 'P3'].map(value => (
+              <FormControlLabel
+                key={value}
+                value={value}
+                label={value}
+                control={<Radio className="priority-radio" inputProps={{ 'data-testid': `priority-${value}` }} />}
+                className="priority-option"
+                sx={{ '& .MuiFormControlLabel-label': { fontWeight: 600 } }}
+              />
+            ))}
+          </RadioGroup>
+        </FormControl>
         <TextField
           id="task-description"
           label="Description"

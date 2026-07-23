@@ -92,3 +92,19 @@ li:last-child {
   color: #d32f2f;
   font-weight: bold;
 }
+
+.priority-radio {
+  color: #7A7A7A;
+}
+
+.priority-radio.Mui-checked {
+  color: #07F2E6;
+}
+
+.priority-option {
+  color: #7A7A7A;
+}
+
+.priority-option .Mui-checked {
+  color: #07F2E6;
+}
